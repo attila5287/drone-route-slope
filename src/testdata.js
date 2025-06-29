@@ -6,10 +6,12 @@ export const testLineString = {
       type: "Feature",
       properties: {},
       geometry: {
-        coordinates: [[
-          [27.09751, 38.45267],
-          [27.0974, 38.45266],
-        ]],
+        coordinates: [
+          [
+            [27.09797, 38.45191],
+            [27.09774, 38.45184],
+          ],
+        ],
         type: "LineString",
       },
     },
