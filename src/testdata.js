@@ -1,4 +1,4 @@
-export const testLineString = { 
+export const testLineString = {
   type: "FeatureCollection",
   features: [
     {
@@ -6,12 +6,10 @@ export const testLineString = {
       type: "Feature",
       properties: {},
       geometry: {
-        coordinates: [
-          [
-            [ 27.17711801159078, 38.454180007334514 ],
-            [ 27.176776977313892, 38.454693968496116 ]
-          ],
-        ],
+        coordinates: [[
+          [27.09751, 38.45267],
+          [27.0974, 38.45266],
+        ]],
         type: "LineString",
       },
     },

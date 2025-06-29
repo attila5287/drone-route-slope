@@ -136,7 +136,7 @@ export default function InputPanel({
               onClick={() =>
                 setUserInput({
                   ...userInput,
-                  stepCount: Math.max(1, stepCount - 1),
+                  angleSlope: Math.max(-90, angleSlope - 1),
                 })
               }
             >
@@ -160,7 +160,10 @@ export default function InputPanel({
             <button
               className="route-btn add-anime btn btn-primary text-success"
               onClick={() =>
-                setUserInput({ ...userInput, angleSlope: angleSlope + 1 })
+                setUserInput({
+                  ...userInput,
+                  angleSlope: Math.min(90, angleSlope + 1),
+                })
               }
             >
               <i className="fas fa-plus"></i>
