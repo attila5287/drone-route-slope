@@ -10,9 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@mapbox/mapbox-gl-draw": "^1.5.0",
+    "@turf/turf": "^7.2.0",
     "bootswatch": "^5.3.7",
-    "mapbox-gl": "^0.28.0",
-    "mapbox-gl-draw": "^0.16.0",
+    "mapbox-gl": "^3.13.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
