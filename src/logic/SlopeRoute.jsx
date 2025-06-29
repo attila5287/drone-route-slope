@@ -1,5 +1,5 @@
 import * as turf from "@turf/turf";
-import * as utils from "./Utils";
+import { utils } from "./Utils";
 import { testLineString } from "../testdata";
 
 export const SlopeRoute = (lineSegment, userInput) => {
@@ -14,12 +14,12 @@ export const SlopeRoute = (lineSegment, userInput) => {
     stepCount = 10,
     startHi = 0,
     finishHi = 20,
-    angleSlope = -26.57,
+    angleSlope = 53.13,
   } = userInput || {};
   const stepHi = (finishHi - startHi) / stepCount;
   
-  const inputPair = lineSegment.features[0].geometry.coordinates.splice(-2);
-  // console.log( ...inputPair )
+  const inputPair = lineSegment.features[0].geometry.coordinates[0].splice(-2);
+  console.log( ...inputPair )
   const inMeters = { units: "meters" };
   const start = {
     x: inputPair[0][0],

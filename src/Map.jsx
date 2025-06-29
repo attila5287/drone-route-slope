@@ -14,15 +14,16 @@ const defaultUserInput = {
   startHi: 8,
   finishHi: 28,
   stepCount: 8,
-  angleSlope: 63.33, // 26.57 is the angle of the slope
+  angleSlope: 53.13, // 26.57 is the angle of the slope
 }
-console.log(SlopeRoute(testLineString, defaultUserInput));
 
 const paragraphStyle = {
   fontFamily: "monospace",
   margin: 0,
   fontSize: 11,
 };
+
+
 
 const MapboxExample = ({token}) => {
   const mapContainerRef = useRef();
@@ -89,50 +90,45 @@ const MapboxExample = ({token}) => {
 
     mapRef.current.on( "style.load", () => {
       try {
-        setStyleLoaded( true );
+        setStyleLoaded(true);
         const extrusionData = ExtrusionFill(testLineString, userInput);
-        // console.log( 'ExtrusionFill result :>> ', extrusionData );
-        // console.log( 'Number of polygons:', extrusionData.features.length );
-        if (extrusionData.features.length > 0) {
-          // console.log( 'First polygon:', extrusionData.features[0] );
-          // console.log( 'First polygon properties:', extrusionData.features[0].properties );
-        }
+
         
         // Add the original line source for visualization
-        if (!mapRef.current.getSource('original-line-src')) {
+        if (!mapRef.current.getSource("original-line-src")) {
           mapRef.current.addSource(`original-line-src`, {
             type: "geojson",
-            data: testLineString,
+            data: SlopeRoute(testLineString, defaultUserInput),
           });
         }
 
         // base config for 2 line layers hrz/vert
         const paintLine = {
-            "line-emissive-strength": 1.0,
-            "line-blur": 0.25,
-            "line-width": 2.75,
-            "line-color": "limegreen",
+          "line-emissive-strength": 1.0,
+          "line-blur": 0.25,
+          "line-width": 2.75,
+          "line-color": "limegreen",
         };
         let layoutLine = {
-            // shared layout between two layers
-            "line-z-offset": [
-                "at",
-                [
-                    "*",
-                    ["line-progress"],
-                    ["-", ["length", ["get", "elevation"]], 1],
-                ],
-                ["get", "elevation"],
+          // shared layout between two layers
+          "line-z-offset": [
+            "at",
+            [
+              "*",
+              ["line-progress"],
+              ["-", ["length", ["get", "elevation"]], 1],
             ],
-            "line-elevation-reference": "sea",
-            "line-cap": "round",
+            ["get", "elevation"],
+          ],
+          "line-elevation-reference": "sea",
+          "line-cap": "round",
         };
 
         layoutLine["line-join"] = "round";
 
         // Add visible line layer for the original LineString
         layoutLine["line-cross-slope"] = 0;
-        if (!mapRef.current.getLayer('elevated-line-horizontal')) {
+        if (!mapRef.current.getLayer("elevated-line-horizontal")) {
           mapRef.current.addLayer({
             id: `elevated-line-horizontal`,
             type: "line",
@@ -144,7 +140,7 @@ const MapboxExample = ({token}) => {
 
         // elevated-line-vertical
         layoutLine["line-cross-slope"] = 1;
-        if (!mapRef.current.getLayer('elevated-line-vertical')) {
+        if (!mapRef.current.getLayer("elevated-line-vertical")) {
           mapRef.current.addLayer({
             id: `elevated-line-vertical`,
             type: "line",
@@ -155,7 +151,7 @@ const MapboxExample = ({token}) => {
         }
 
         // Check if source already exists to avoid duplicate addition
-        if (!mapRef.current.getSource('slope-extrude-src')) {
+        if (!mapRef.current.getSource("slope-extrude-src")) {
           mapRef.current.addSource(`slope-extrude-src`, {
             type: "geojson",
             data: extrusionData,
@@ -163,7 +159,7 @@ const MapboxExample = ({token}) => {
         }
 
         // Check if layer already exists to avoid duplicate addition
-        if (!mapRef.current.getLayer('slope-extrude-layer')) {
+        if (!mapRef.current.getLayer("slope-extrude-layer")) {
           mapRef.current.addLayer({
             id: `slope-extrude-layer`,
             type: "fill-extrusion",
@@ -201,7 +197,6 @@ const MapboxExample = ({token}) => {
     };
   }, []);
 
-
   return (
     <>
       <div ref={mapContainerRef} id="map" style={{ height: "100%" }}></div>
@@ -214,12 +209,12 @@ const MapboxExample = ({token}) => {
       <div
         className="calculation-box"
         style={{
-          height: 50,
+          height: 40,
           width: 150,
           position: "absolute",
           bottom: 40,
           left: 135,
-          padding: 5,
+          padding: "10px",
           textAlign: "center",
           borderRadius: 10,
           backgroundColor: "rgba(0, 0, 0, 0.4)",
@@ -227,7 +222,7 @@ const MapboxExample = ({token}) => {
         }}
       >
         <p style={paragraphStyle}>
-          <i className="fas fa-info-circle mx-1"></i> Draw a line string</p>
+          <i className="fa-pull-left fas fa-info-circle mx-1 text-lg"></i> Draw a line string</p>
         <div id="calculated-area">
           {roundedDistance && (
             <>
