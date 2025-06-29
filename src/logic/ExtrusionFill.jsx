@@ -14,12 +14,12 @@ const ExtrusionFill = function ( lineString, userInput ) {
 	}
 	// console.log( userInput );
 	// console.log( 'lineString' )
-	console.log( 'lineString :>> ', lineString )
+	// console.log( 'lineString :>> ', lineString )
 	const angle = userInput.angleSlope;
 			// console.log('angle :>> ', angle);
 			const indexOfLastPos =
 				lineString.features[0].geometry.coordinates[0].length-1;
-			console.log(indexOfLastPos);
+			// console.log(indexOfLastPos);
 			const coordsInput = [
 				lineString.features[0].geometry.coordinates[0][
 					indexOfLastPos - 1
@@ -28,7 +28,7 @@ const ExtrusionFill = function ( lineString, userInput ) {
 					indexOfLastPos
 				],
 			];
-			console.log( 'coordsInput :>> ', ...coordsInput );
+			// console.log( 'coordsInput :>> ', ...coordsInput );
 			const tan = 1 / Math.tan( ( angle * Math.PI ) / 180 );
 			// step dynamic height
 			// console.log( 'tan :>> ', tan );
