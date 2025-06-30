@@ -20,6 +20,8 @@
 |Extrude Polygon| (building)|https://docs.mapbox.com/mapbox-gl-js/example/3d-extrusion-floorplan/|
 |Elevated Line  | (route)   |https://docs.mapbox.com/mapbox-gl-js/example/elevated-line/|
 
+### REACT live version on vercel
+![demo-vercel](./src/assets/images/demo-vercel/image.png)
 ### Original Pure-JS Code
 ![flight-routes](./src/assets/images/flight-routes/image.jpg)
 ### Mapbox example as a starting point
@@ -28,3 +30,4 @@
 ![extrude-poly](./src/assets/images/extrude-poly/image.png)
 ### Mapbox example to create 3-d line path
 ![elevated-line](./src/assets/images/elevated-line/image.png)
+
