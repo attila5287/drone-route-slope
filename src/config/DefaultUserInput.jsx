@@ -1,6 +1,6 @@
 export const defaultUserInput = {
-  startHi: 3,
-  finishHi: 38,
+  startHi: 0,
+  finishHi: 35,
   stepCount: 7,
-  angleSlope: 80, // 26.57 is the arc-tan=2/1
+  angleSlope: 82, // 26.57 is the arc-tan=2/1
 };

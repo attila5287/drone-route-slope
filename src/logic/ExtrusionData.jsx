@@ -3,8 +3,9 @@ import { testLineString } from "../testdata";
 import { defaultUserInput } from "../config/DefaultUserInput";
 
 const ExtrusionData = function ( lineString, userInput ) {
-	if ( !lineString ) {
+	if ( !lineString || !lineString.features || lineString.features.length === 0 ) {
 		lineString = testLineString;
+		console.log( "ExtrusionData - using test data" );
 	}
 	if ( !userInput ) {
 		userInput = defaultUserInput;
@@ -14,17 +15,25 @@ const ExtrusionData = function ( lineString, userInput ) {
 	// console.log( 'lineString :>> ', lineString )
 	const angle = userInput.angleSlope;
 			// console.log('angle :>> ', angle);
-			const indexOfLastPos =
-				lineString.features[0].geometry.coordinates[0].length-1;
-			// console.log(indexOfLastPos);
-			const coordsInput = [
-				lineString.features[0].geometry.coordinates[0][
-					indexOfLastPos - 1
-				],
-				lineString.features[0].geometry.coordinates[0][
-					indexOfLastPos
-				],
-			];
+			
+			// Simple flatMap coordinate extraction
+			console.log('ExtrusionData - lineString:', lineString);
+			const allCoords = lineString.features.flatMap(feature => {
+				const coords = feature.geometry.coordinates;
+				console.log('ExtrusionData - feature coords:', coords);
+				// If coordinates are nested (testLineString format), flatten them
+				return Array.isArray(coords[0]) && Array.isArray(coords[0][0]) ? coords.flat() : coords;
+			});
+			
+			console.log('ExtrusionData - allCoords:', allCoords);
+			
+			if (!allCoords || allCoords.length < 2) {
+				console.error('ExtrusionData - Not enough coordinates, using testLineString');
+				return ExtrusionData(testLineString, userInput);
+			}
+			
+			const coordsInput = allCoords.slice(-2); // Get last 2 coordinates
+			console.log('ExtrusionData - coordsInput:', coordsInput);
 			// console.log( 'coordsInput :>> ', ...coordsInput );
 			const tan = 1 / Math.tan( ( angle * Math.PI ) / 180 );
 			// step dynamic height

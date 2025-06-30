@@ -1,8 +1,3 @@
-body {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
 #root {
   position: absolute;
@@ -13,8 +8,8 @@ body {
 }
 
 #map-container {
-  height: 100%;
-  width: 100%;
+  height: 100vh;
+  width: 100vw;
   /* temporarily set the background color so we can tell where the map container is positioned */
   background-color: lightgrey;
 }

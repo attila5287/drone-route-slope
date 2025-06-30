@@ -1,3 +1,4 @@
+import "bootswatch/dist/slate/bootstrap.min.css";
 import React, { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
@@ -77,6 +78,29 @@ const MapboxExample = ({token}) => {
       if (data.features.length > 0) { 
         const distance = turf.length(data, {units: "meters"});
         setRoundedDistance(Math.round(distance * 100) / 100);
+        
+        // Update line layer data with drawn line
+        const lineSource = mapRef.current.getSource("original-line-src");
+        if (lineSource) {
+          console.log('Updating line layer with drawn data');
+          const newLineData = SlopeRoute(data, userInput);
+          lineSource.setData(newLineData);
+        } else {
+          console.warn('Line source not found');
+        }
+
+        // Update extrusion layer data with drawn line
+        const extrusionSource = mapRef.current.getSource("slope-extrude-src");
+        if (extrusionSource) {
+          console.log('Updating extrusion layer with drawn data');
+          const newExtrusionData = ExtrusionData(data, userInput);
+          extrusionSource.setData(newExtrusionData);
+        } else {
+          console.warn('Extrusion source not found');
+        }
+
+        // Trigger repaint to ensure changes are rendered
+        mapRef.current.triggerRepaint();
       } else {
         setRoundedDistance();
         if (e.type !== "draw.delete") alert("Draw a line string.");
@@ -99,11 +123,13 @@ const MapboxExample = ({token}) => {
         const extrusionData = ExtrusionData(testLineString, userInput);
 
         
-        // Add the original line source for visualization
+        // Add the original line source for visualization - start with test data
         if (!mapRef.current.getSource("original-line-src")) {
+          console.log('Initializing with testLineString:', testLineString);
           mapRef.current.addSource(`original-line-src`, {
             type: "geojson",
-            data: SlopeRoute(testLineString, defaultUserInput),
+            lineMetrics: true,
+            data: SlopeRoute(testLineString, userInput),
           });
         }
         layoutLine["line-join"] = "round";
@@ -167,24 +193,56 @@ const MapboxExample = ({token}) => {
     };
   }, []);
 
+  // Update layers when userInput changes
+  useEffect(() => {
+    if (!mapRef.current || !styleLoaded || !drawRef.current) return;
+
+    // Get current drawn data or fall back to test data
+    const drawnData = drawRef.current.getAll();
+    const currentLineData = (drawnData.features.length > 0) ? drawnData : testLineString;
+
+    // Update line layer data
+    const lineSource = mapRef.current.getSource("original-line-src");
+    if (lineSource) {
+      const newLineData = SlopeRoute(currentLineData, userInput);
+      lineSource.setData(newLineData);
+    }
+
+    // Update extrusion layer data
+    const extrusionSource = mapRef.current.getSource("slope-extrude-src");
+    if (extrusionSource) {
+      const newExtrusionData = ExtrusionData(currentLineData, userInput);
+      extrusionSource.setData(newExtrusionData);
+    }
+
+    // Trigger repaint to ensure changes are rendered
+    mapRef.current.triggerRepaint();
+  }, [userInput, styleLoaded]);
+
   return (
     <>
+      <nav className="navbar navbar-expand navbar-dark bg-dark" style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 2, height: "30px", padding: "5px" }}>
+        <a className="navbar-brand" href="https://www.droneqube.com">
+          <img src="./src/assets/DRONEQUBE_LOGO.svg" alt="Logo" style={{ height: "12px" }} />
+        </a>
+        <a className="nav-item" href="https://www.droneqube.com">
+          <i className="fas fa-solar-panel mx-2"></i>
+          <span className="navbar-text">
+            Slope Route
+          </span>
+        </a>
+      </nav>
       <div ref={mapContainerRef} id="map" style={{ height: "100%" }}></div>
-      {roundedDistance &&
-        <InputPanel
-          userInput={userInput}
-          setUserInput={setUserInput}
-        />
-      }
+      <InputPanel userInput={userInput} setUserInput={setUserInput} />
       <div
         className="calculation-box"
         style={{
-          height: 40,
+          height: 55,
           width: 150,
           position: "absolute",
           bottom: 40,
           left: 135,
-          padding: "10px",
+          padding: "8px",
           textAlign: "center",
           borderRadius: 10,
           backgroundColor: "rgba(0, 0, 0, 0.4)",
@@ -192,7 +250,10 @@ const MapboxExample = ({token}) => {
         }}
       >
         <p style={paragraphStyle}>
-          <i className="fa-pull-left fas fa-info-circle mx-1 text-lg"></i> Draw a line string</p>
+          <i className="fa-pull-left fas fa-info-circle mx-1 text-lg"></i>
+          {!roundedDistance && <span>Draw a line string</span>}
+          {roundedDistance && <span>Pick line to edit</span>}
+        </p>
         <div id="calculated-area">
           {roundedDistance && (
             <>

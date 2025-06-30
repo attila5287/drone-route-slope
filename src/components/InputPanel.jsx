@@ -143,7 +143,7 @@ export default function InputPanel({
               <i className="fa fa-minus"></i>
             </button>
             <div className="btn btn-success disabled text-primary opac">
-              <i className="route-icons fa fa-fw fa-arrows-turn-to-dots"></i>
+              <i className="route-icons fa fa-fw fa-swatchbook"></i>
             </div>
           </div>
           <input
@@ -162,7 +162,7 @@ export default function InputPanel({
               onClick={() =>
                 setUserInput({
                   ...userInput,
-                  angleSlope: Math.min(90, angleSlope + 1),
+                  angleSlope: Math.min(89.5, angleSlope + 1),
                 })
               }
             >

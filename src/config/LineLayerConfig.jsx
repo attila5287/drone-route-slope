@@ -8,7 +8,7 @@ const paintLine = {
 let layoutLine = {
   // shared layout between two layers
   "line-z-offset": [
-    "at",
+    "at-interpolated",
     ["*", ["line-progress"], ["-", ["length", ["get", "elevation"]], 1]],
     ["get", "elevation"],
   ],
