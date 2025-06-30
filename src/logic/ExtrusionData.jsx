@@ -1,16 +1,13 @@
 import * as turf from "@turf/turf";
 import { testLineString } from "../testdata";
-const ExtrusionFill = function ( lineString, userInput ) {
+import { defaultUserInput } from "../config/DefaultUserInput";
+
+const ExtrusionData = function ( lineString, userInput ) {
 	if ( !lineString ) {
 		lineString = testLineString;
 	}
 	if ( !userInput ) {
-		userInput = {
-			startHi: 0,
-			finishHi: 20,
-			stepCount: 4,
-			angleSlope: 26.57,
-		};
+		userInput = defaultUserInput;
 	}
 	// console.log( userInput );
 	// console.log( 'lineString' )
@@ -84,4 +81,4 @@ const ExtrusionFill = function ( lineString, userInput ) {
 			// return this.inputDraw.geo;
 		
 }
-export { ExtrusionFill }
+export { ExtrusionData }

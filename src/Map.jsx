@@ -5,25 +5,19 @@ import * as turf from "@turf/turf";
 import InputPanel from "./components/InputPanel";
 import { SlopeRoute } from "./logic/SlopeRoute";
 import { SlopeExtrusion } from "./logic/SlopeExtrusion";
-import { ExtrusionFill } from "./logic/ExtrusionFill";
+import { ExtrusionData } from "./logic/ExtrusionData";
+import { ExtrusionLayerConfig } from "./config/ExtrusionLayerConfig";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import { testLineString } from "./testdata";
-
-const defaultUserInput = {
-  startHi: 8,
-  finishHi: 28,
-  stepCount: 8,
-  angleSlope: 53.13, // 26.57 is the angle of the slope
-}
+import { defaultUserInput } from "./config/DefaultUserInput";
+import { paintLine, layoutLine } from "./config/LineLayerConfig";
 
 const paragraphStyle = {
   fontFamily: "monospace",
   margin: 0,
   fontSize: 11,
 };
-
-
 
 const MapboxExample = ({token}) => {
   const mapContainerRef = useRef();
@@ -45,11 +39,11 @@ const MapboxExample = ({token}) => {
       mapRef.current = new mapboxgl.Map({
         container: mapContainerRef.current,
         style: "mapbox://styles/mapbox/standard",
-        // Centered on test data
-        center: [27.09767, 38.45218],
+        // center: [28.97978, 41.00821], // hagia sophia
+        center: [27.11099, 38.44935], // girne blvd 100m from the sea
         zoom: 18.5,
-        pitch: 62,
-        bearing: 150,
+        bearing: 17,
+        pitch: 65,
         attributionControl: false,
         //dusk
         config: {
@@ -79,6 +73,7 @@ const MapboxExample = ({token}) => {
 
     function updateLayers(e) {
       const data = drawRef.current.getAll();
+      console.log('data ', data);
       if (data.features.length > 0) { 
         const distance = turf.length(data, {units: "meters"});
         setRoundedDistance(Math.round(distance * 100) / 100);
@@ -90,8 +85,18 @@ const MapboxExample = ({token}) => {
 
     mapRef.current.on( "style.load", () => {
       try {
+              mapRef.current.addSource("mapbox-dem", {
+                type: "raster-dem",
+                url: "mapbox://mapbox.mapbox-terrain-dem-v1",
+                tileSize: 512,
+                maxzoom: 14,
+              });
+              mapRef.current.setTerrain({
+                source: "mapbox-dem",
+                exaggeration: 1.5,
+              });
         setStyleLoaded(true);
-        const extrusionData = ExtrusionFill(testLineString, userInput);
+        const extrusionData = ExtrusionData(testLineString, userInput);
 
         
         // Add the original line source for visualization
@@ -101,32 +106,7 @@ const MapboxExample = ({token}) => {
             data: SlopeRoute(testLineString, defaultUserInput),
           });
         }
-
-        // base config for 2 line layers hrz/vert
-        const paintLine = {
-          "line-emissive-strength": 1.0,
-          "line-blur": 0.25,
-          "line-width": 2.75,
-          "line-color": "limegreen",
-        };
-        let layoutLine = {
-          // shared layout between two layers
-          "line-z-offset": [
-            "at",
-            [
-              "*",
-              ["line-progress"],
-              ["-", ["length", ["get", "elevation"]], 1],
-            ],
-            ["get", "elevation"],
-          ],
-          "line-elevation-reference": "sea",
-          "line-cap": "round",
-        };
-
         layoutLine["line-join"] = "round";
-
-        // Add visible line layer for the original LineString
         layoutLine["line-cross-slope"] = 0;
         if (!mapRef.current.getLayer("elevated-line-horizontal")) {
           mapRef.current.addLayer({
@@ -167,17 +147,7 @@ const MapboxExample = ({token}) => {
             layout: {
               "fill-extrusion-edge-radius": 0.0,
             },
-            paint: {
-              "fill-extrusion-height": ["get", "height"], // Use the height property from each polygon
-              "fill-extrusion-base": ["get", "base"], // Use the base property from each polygon
-              "fill-extrusion-color": "Navy", // Black background for green line path
-              "fill-extrusion-emissive-strength": 0.5, // background behind green line
-              "fill-extrusion-opacity": 0.5, // Increased opacity
-              "fill-extrusion-cast-shadows": true,
-              "fill-extrusion-flood-light-intensity": 1.0,
-              "fill-extrusion-flood-light-color": "DarkTurquoise",
-              "fill-extrusion-flood-light-ground-radius": 2,
-            },
+            paint: ExtrusionLayerConfig.paint,
           });
         }
       } catch (error) {

@@ -1,25 +1,51 @@
 import * as turf from "@turf/turf";
-import { utils } from "./Utils";
 import { testLineString } from "../testdata";
+import { defaultUserInput } from "../config/DefaultUserInput";
 
-export const SlopeRoute = (lineSegment, userInput) => {
-  // console.log( 'slope' );
+export const SlopeRoute = ( lineSegment, userInput ) => {
+  function elevateFromDistance(
+    XfromStart, // distance From Start: X-bar
+    inLoopLength, // length of base ring: totalX
+    inStepHeight, // height is 2r
+    inElevMin // base height
+  ) {
+    const r = inStepHeight * 0.5; // radius of the circular segments
+    const x = XfromStart;
+  
+    // 3 SEGMENTS OF THE LINE
+    const isInSeg1ConcaveDown = x < r; // First segment (circular, concave down)
+    const isInSeg3ConcaveUp = inLoopLength - x < r; // Third segment (circular, concave up)
+  
+    let calculatedY; // result
+  
+    if (isInSeg1ConcaveDown) {
+      // First segment: quarter circle (0 to π/2) moving upward
+      // calculatedY = r - Math.sqrt(r * r - x * x);
+      calculatedY = Math.sqrt(r * r - (x - r) * (x - r));
+      // console.log(calculatedY);
+    } else if (isInSeg3ConcaveUp) {
+      // Third segment: quarter circle (π to 3π/2) moving downward
+      const xFromEnd = inLoopLength - x;
+      calculatedY = r - Math.sqrt(r * r - (xFromEnd - r) * (xFromEnd - r));
+      calculatedY += inStepHeight * 0.5;
+    } else {
+      // Second segment: straight line at maximum height (2r)
+      calculatedY = inStepHeight * 0.5;
+    }
+    // Add the base elevation
+    return calculatedY + inElevMin;
+  }
   if(lineSegment.features.length === 0) {
     lineSegment = testLineString;
     console.log( "using test data" );
     console.log( lineSegment );
   }
   const features = []; // output of the function with geoJSON feats
-  const {
-    stepCount = 10,
-    startHi = 0,
-    finishHi = 20,
-    angleSlope = 53.13,
-  } = userInput || {};
+  const { startHi, finishHi, stepCount, angleSlope } = userInput || defaultUserInput;
   const stepHi = (finishHi - startHi) / stepCount;
   
   const inputPair = lineSegment.features[0].geometry.coordinates[0].splice(-2);
-  console.log( ...inputPair )
+  // console.log( 'inputPair last 2 pts',...inputPair )
   const inMeters = { units: "meters" };
   const start = {
     x: inputPair[0][0],
@@ -44,7 +70,7 @@ export const SlopeRoute = (lineSegment, userInput) => {
     // console.log(dist, len);
     const marginExtrusion = 7;
     const startHiPass = startHi + marginExtrusion;
-    const elev = utils.elevateFromDistance(dist, len, stepHi, startHiPass);
+    const elev = elevateFromDistance(dist, len, stepHi, startHiPass);
     // console.log( elev );
     elevs.push(elev);
     coords.push([posX, posY]);
@@ -99,9 +125,9 @@ export const SlopeRoute = (lineSegment, userInput) => {
     const lineInput = turf.lineString(fe.geometry.coordinates);
     let displacement = 0;
     if (idxFt % 2 === 0) {
-      displacement = dispStep;
+      displacement = dispStep*-1;
     } else {
-      displacement = dispStep * -1;
+      displacement = dispStep;
     }
     const lineBase = turf.lineOffset(lineInput, displacement * idxFt, inMeters);
     // FIXME:  coordsExit[0] should be equal to ccoordsEnter[1
@@ -122,7 +148,6 @@ export const SlopeRoute = (lineSegment, userInput) => {
     // console.log(coEnterBase);
     const coExitOffset = lineOffset.geometry.coordinates[idxOfLast];
     // console.log( coExitOffset );
-
     const lenMod = turf.distance(coEnterBase, coExitOffset, inMeters);
     // console.log(lenMod);
     const newBasicLine = turf.lineString([coEnterBase, coExitOffset]);
@@ -168,6 +193,7 @@ export const SlopeRoute = (lineSegment, userInput) => {
     // });
     // console.log( angleRot )
   }
+  console.log(featsMod);
 
   const tester = [
     {

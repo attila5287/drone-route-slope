@@ -1,13 +1,9 @@
 import * as turf from "@turf/turf";
+import { defaultUserInput } from "../config/DefaultUserInput";
 
 export const SlopeExtrusion = ( lineString,  userInput ) => {
   if (!userInput) {
-    userInput = {
-    startHi: 0,
-    finishHi: 20,
-    stepCount: 4,
-    angleSlope: -26.57,
-    };
+		userInput = defaultUserInput;
   }
 			const angle = userInput.angleSlope;
 			// console.log('angle :>> ', angle);
